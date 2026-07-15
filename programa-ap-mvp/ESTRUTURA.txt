@@ -1,0 +1,13 @@
+programa-ap-mvp/
+├── index.html
+├── styles.css
+├── app.js
+├── db.js
+├── calculations.js
+├── presentation.js
+├── pdf.js
+├── manifest.json
+├── service-worker.js
+├── assets/
+├── icons/
+└── vendor/
