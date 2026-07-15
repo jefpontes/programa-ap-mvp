@@ -1,0 +1,47 @@
+
+import {weightedScore,scoreLabel,areaScore,money,buildSchedule} from "./calculations.js";
+
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+const img=(src,cls="slide-photo")=>src?`<img class="${cls}" src="${src}" alt="">`:`<div class="${cls}" style="background:#eee;display:grid;place-items:center;color:#888">Sem foto</div>`;
+function footer(c,n,total){
+ return `<div class="slide__footer"><span>${esc(c.condominium?.name||"Programa AP")} · Plano ${esc(c.planNumber||"")}</span><span>${n}/${total} · ${new Date(c.date||Date.now()).toLocaleDateString("pt-BR")} · v${esc(c.version||"1.0")}</span></div>`;
+}
+export function buildSlides(c,financial,settings){
+ const allSets=(c.areas||[]).flatMap(a=>a.sets||[]),diag=weightedScore(allSets),slides=[];
+ const add=html=>slides.push(html);
+ add(`<section class="slide">${img(c.condominium?.facadePhoto,"slide__hero-image")}<div class="slide__overlay"></div><div class="slide__cover-content"><span class="eyebrow">Plano Executivo AP</span><h1>${esc(c.condominium?.name||"Condomínio")}</h1><p>Programa de Gestão e Renovação do Patrimônio Mobiliário</p><p>${new Date(c.date||Date.now()).toLocaleDateString("pt-BR")} · Versão ${esc(c.version||"1.0")}</p></div></section>`);
+ add(`<section class="slide"><span class="eyebrow">Apresentação</span><h1 class="slide__title">Um plano para preservar, renovar e evoluir.</h1><p style="font-size:1.45rem;max-width:80%;margin-top:8%">A AP realizou o diagnóstico do patrimônio mobiliário e estruturou um programa de intervenção planejada, com prioridades claras, previsibilidade financeira e implantação programada.</p></section>`);
+ add(`<section class="slide"><span class="eyebrow">Diagnóstico executivo</span><h1 class="slide__title">Situação atual do patrimônio</h1><div class="slide-grid slide-grid--3">
+ <div class="slide-card"><small>Score atual</small><strong>${diag.score.toFixed(1)} / 5</strong><p>${scoreLabel(diag.score)}</p></div>
+ <div class="slide-card"><small>Peças avaliadas</small><strong>${diag.totalPieces}</strong><p>${(c.areas||[]).length} ambientes</p></div>
+ <div class="slide-card"><small>Necessita intervenção</small><strong>${diag.interventionPercent.toFixed(0)}%</strong><p>${diag.interventionPieces} peças</p></div>
+ <div class="slide-card"><small>Reposição estimada</small><strong>${money(financial.market)}</strong></div></div></section>`);
+ add(`<section class="slide"><span class="eyebrow">Panorama geral</span><h1 class="slide__title">Visão integrada dos ambientes</h1><div class="table-wrap" style="margin-top:4%"><table><thead><tr><th>Ambiente</th><th>Score</th><th>Prioridade</th><th>Recomendação</th></tr></thead><tbody>${(c.areas||[]).map(a=>`<tr><td>${esc(a.name)}</td><td>${areaScore(a).score.toFixed(1)}</td><td>${a.requestedPriority?"Solicitada":"Técnica"}</td><td>Preservação programada</td></tr>`).join("")}</tbody></table></div></section>`);
+ add(`<section class="slide"><span class="eyebrow">Por que agir agora</span><h1 class="slide__title">Planejamento transforma custo emergencial em patrimônio preservado.</h1><div class="slide-grid"><div class="slide-card"><h2>Sem planejamento</h2><p>Deterioração progressiva<br>Compras emergenciais<br>Perda de padronização<br>Custos imprevisíveis</p></div><div class="slide-card" style="border-color:#B08D57"><h2>Com o Programa AP</h2><p>Preservação<br>Planejamento<br>Implantação programada<br>Previsibilidade<br>Renovação visual</p></div></div></section>`);
+ add(`<section class="slide"><span class="eyebrow">Benefícios</span><h1 class="slide__title">Gestão contínua do patrimônio mobiliário</h1><div class="slide-grid slide-grid--3">${["Preservação do patrimônio","Planejamento financeiro","Modernização","Padronização","Atendimento programado","Programa de Gestão"].map(x=>`<div class="slide-card"><strong>${x}</strong></div>`).join("")}</div></section>`);
+ add(`<section class="slide"><span class="eyebrow">Comparativo patrimonial</span><h1 class="slide__title">Preservar custa menos do que repor.</h1><div class="slide-grid slide-grid--3"><div class="slide-card"><small>Patrimônio estimado</small><strong>${money(financial.market)}</strong></div><div class="slide-card"><small>Programa AP</small><strong>${money(financial.presentedTotal)}</strong></div><div class="slide-card"><small>Economia estimada</small><strong>${money(financial.economy)}</strong></div></div></section>`);
+ for(const a of c.areas||[]){
+   const s=areaScore(a),af=a.financial||{};
+   add(`<section class="slide"><span class="eyebrow">Ambiente</span><h1 class="slide__title">${esc(a.name)}</h1><div class="slide-grid"><div>${img(a.photo)}<p>${esc(a.note||"Diagnóstico realizado durante a vistoria.")}</p></div><div><div class="slide-card"><small>Score</small><strong>${s.score.toFixed(1)} · ${scoreLabel(s.score)}</strong></div><h3>Plano de preservação</h3><p>Intervenção programada por conjuntos, priorizando integridade, padronização e resultado visual.</p>${c.briefing?.modernizationInterest?"<h3>Modernização</h3><p>Cenário comparativo incluído quando tecnicamente aplicável.</p>":""}${c.briefing?.expansionInterest?"<h3>Ampliação</h3><p>Novos itens permanecem separados do plano de preservação.</p>":""}<p><strong>Investimento do ambiente: ${money(af.commercial)}</strong></p></div></div></section>`);
+ }
+ add(`<section class="slide"><span class="eyebrow">Panorama financeiro</span><h1 class="slide__title">Programa completo e implantação por etapas</h1><div class="slide-grid"><div class="slide-card"><small>Programa completo</small><strong>${money(financial.presentedTotal)}</strong><p>Visão integral de todas as áreas avaliadas.</p></div><div class="slide-card"><h3>Por ambiente</h3>${(c.areas||[]).map(a=>`<p>${esc(a.name)} <strong style="float:right">${money(a.financial?.commercial)}</strong></p>`).join("")}</div></div></section>`);
+ const sched=buildSchedule(c);
+ add(`<section class="slide"><span class="eyebrow">Cronograma</span><h1 class="slide__title">Implantação por ordem de prioridade</h1><div class="table-wrap" style="margin-top:4%"><table><thead><tr><th>Fase</th><th>Ambiente</th><th>Período</th></tr></thead><tbody>${sched.map(x=>`<tr><td>${x.phase}</td><td>${esc(x.name)}</td><td>${esc(x.period)}</td></tr>`).join("")}</tbody></table></div></section>`);
+ add(`<section class="slide"><span class="eyebrow">Investimento</span><h1 class="slide__title">Duas modalidades de implantação</h1><div class="slide-grid"><div class="slide-card"><h2>Plano 12</h2><p>Implantação: ${money(financial.plan12.implementation)} (${financial.plan12.percent}%)</p><p>Saldo: ${money(financial.plan12.balance)}</p><p>${financial.plan12.installments} parcelas de ${money(financial.plan12.installmentValue)}</p><p>Execução em até 6 meses.</p></div><div class="slide-card" style="border-color:#B08D57"><h2>Plano 24</h2><p>Implantação: ${money(financial.plan24.implementation)} (${financial.plan24.percent}%)</p><p>Saldo: ${money(financial.plan24.balance)}</p><p>${financial.plan24.installments} parcelas de ${money(financial.plan24.installmentValue)}</p><p>Execução em até 12 meses.</p><p>Programa de Gestão e Crédito de Renovação.</p></div></div></section>`);
+ add(`<section class="slide"><span class="eyebrow">Próximos passos</span><h1 class="slide__title">Da aprovação ao início da implantação</h1><div class="slide-grid slide-grid--3">${["Aprovação","Resumo comercial","Investimento inicial","Início da implantação","Acompanhamento AP"].map((x,i)=>`<div class="slide-card"><small>0${i+1}</small><strong>${x}</strong></div>`).join("")}</div><p style="margin-top:6%">${esc(settings.company?.name||"Almeida Pontes")} · ${esc(settings.company?.phone||settings.company?.whatsapp||"Contato AP")}</p></section>`);
+ const total=slides.length;
+ return slides.map((s,i)=>s.replace("</section>",footer(c,i+1,total)+"</section>"));
+}
+export function renderPresentation(root,c,financial,settings){
+ const slides=buildSlides(c,financial,settings);
+ root.innerHTML=`<div class="presentation-overlay"><div class="presentation-stage">${slides.join("")}</div><div class="presentation-controls no-print">
+ <button class="button button--ghost" data-p-action="close">Fechar</button><button class="button button--ghost" data-p-action="prev">Anterior</button><button class="button button--secondary" data-p-action="next">Próximo</button><button class="button button--ghost" data-p-action="overview">Panorama</button><button class="button button--ghost" data-p-action="print">Imprimir / PDF</button><button class="button button--ghost" data-p-action="decision">Registrar decisão</button><button class="button button--ghost" data-p-action="whatsapp">WhatsApp</button></div></div>`;
+ let index=0;const els=[...root.querySelectorAll(".slide")];
+ const show=i=>{index=(i+els.length)%els.length;els.forEach((e,n)=>e.classList.toggle("is-active",n===index))};show(0);
+ root.onclick=e=>{const a=e.target.closest("[data-p-action]")?.dataset.pAction;if(!a)return;
+  if(a==="prev")show(index-1);if(a==="next")show(index+1);if(a==="overview")show(3);
+  if(a==="close")root.innerHTML="";if(a==="print")window.dispatchEvent(new CustomEvent("ap-print"));
+  if(a==="decision")window.dispatchEvent(new CustomEvent("ap-decision"));
+  if(a==="whatsapp"){const msg=encodeURIComponent(`Plano Executivo AP — ${c.condominium?.name}. Programa estimado: ${money(financial.presentedTotal)}.`);location.href=`https://wa.me/?text=${msg}`;}
+ };
+}

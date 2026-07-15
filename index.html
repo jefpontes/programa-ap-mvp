@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2B2B2B">
+  <meta name="description" content="Programa AP — Gestão e Renovação do Patrimônio Mobiliário">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Programa AP">
+
+  <title>Programa AP</title>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <noscript>
+    <section class="system-message system-message--critical">
+      O Programa AP precisa do JavaScript ativado para funcionar.
+    </section>
+  </noscript>
+
+  <div id="app-shell" class="app-shell">
+    <header class="app-header no-print">
+      <button
+        id="header-back-button"
+        class="icon-button icon-button--ghost is-hidden"
+        type="button"
+        aria-label="Voltar"
+        data-action="navigate-back"
+      >
+        <span aria-hidden="true">←</span>
+      </button>
+
+      <div class="brand">
+        <div class="brand__mark" aria-label="AP">AP</div>
+        <div class="brand__text">
+          <strong>Programa AP</strong>
+          <span>Gestão e Renovação do Patrimônio Mobiliário</span>
+        </div>
+      </div>
+
+      <div class="app-header__status">
+        <span id="connection-status" class="status-badge" aria-live="polite">
+          Verificando conexão
+        </span>
+      </div>
+    </header>
+
+    <main id="app" class="app-main" tabindex="-1">
+      <section id="loading-screen" class="loading-screen" aria-live="polite">
+        <div class="loading-screen__brand">AP</div>
+        <h1>Programa AP</h1>
+        <p>Preparando a aplicação offline...</p>
+        <div class="loading-indicator" aria-hidden="true"></div>
+      </section>
+    </main>
+
+    <footer class="app-footer no-print">
+      <span>Programa AP</span>
+      <span id="app-version">Versão 1.0.0</span>
+    </footer>
+  </div>
+
+  <div
+    id="toast-region"
+    class="toast-region no-print"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  ></div>
+
+  <div
+    id="modal-root"
+    class="modal-root no-print"
+    aria-live="polite"
+  ></div>
+
+  <input
+    id="global-file-input"
+    class="visually-hidden"
+    type="file"
+    accept=".json,application/json"
+    aria-hidden="true"
+    tabindex="-1"
+  >
+
+  <template id="home-template">
+    <section class="screen screen--home">
+      <div class="hero">
+        <div class="hero__content">
+          <span class="eyebrow">Consultoria executiva offline</span>
+          <h1>Gestão e renovação do patrimônio mobiliário.</h1>
+          <p>
+            Cadastre, realize a vistoria, calcule cenários e apresente o Plano Executivo AP
+            diretamente no tablet.
+          </p>
+        </div>
+
+        <div class="hero__actions">
+          <button class="button button--primary button--large" type="button" data-action="new-consultation">
+            Nova consultoria
+          </button>
+          <button class="button button--secondary button--large" type="button" data-action="open-consultations">
+            Consultorias salvas
+          </button>
+        </div>
+      </div>
+
+      <div class="home-grid">
+        <button class="navigation-card" type="button" data-action="open-consultations">
+          <span class="navigation-card__icon" aria-hidden="true">▣</span>
+          <span class="navigation-card__content">
+            <strong>Consultorias salvas</strong>
+            <small>Retomar, apresentar ou arquivar registros.</small>
+          </span>
+          <span class="navigation-card__arrow" aria-hidden="true">→</span>
+        </button>
+
+        <button class="navigation-card" type="button" data-action="open-settings">
+          <span class="navigation-card__icon" aria-hidden="true">⚙</span>
+          <span class="navigation-card__content">
+            <strong>Configurações</strong>
+            <small>Tabela mestre, parâmetros e administração local.</small>
+          </span>
+          <span class="navigation-card__arrow" aria-hidden="true">→</span>
+        </button>
+
+        <button class="navigation-card" type="button" data-action="export-data">
+          <span class="navigation-card__icon" aria-hidden="true">⇩</span>
+          <span class="navigation-card__content">
+            <strong>Exportar dados</strong>
+            <small>Gerar backup integral em JSON ou resumo em CSV.</small>
+          </span>
+          <span class="navigation-card__arrow" aria-hidden="true">→</span>
+        </button>
+
+        <button class="navigation-card" type="button" data-action="import-data">
+          <span class="navigation-card__icon" aria-hidden="true">⇧</span>
+          <span class="navigation-card__content">
+            <strong>Importar dados</strong>
+            <small>Restaurar um backup local sem conexão.</small>
+          </span>
+          <span class="navigation-card__arrow" aria-hidden="true">→</span>
+        </button>
+      </div>
+    </section>
+  </template>
+
+  <template id="consultation-shell-template">
+    <section class="screen screen--consultation">
+      <aside class="step-sidebar no-print" aria-label="Etapas da consultoria">
+        <div class="step-sidebar__header">
+          <span class="eyebrow">Consultoria</span>
+          <strong id="sidebar-condominium-name">Novo condomínio</strong>
+        </div>
+
+        <nav class="step-navigation">
+          <button type="button" class="step-navigation__item is-active" data-step="condominium">
+            <span>1</span>
+            <strong>Condomínio</strong>
+          </button>
+          <button type="button" class="step-navigation__item" data-step="briefing">
+            <span>2</span>
+            <strong>Briefing</strong>
+          </button>
+          <button type="button" class="step-navigation__item" data-step="survey">
+            <span>3</span>
+            <strong>Levantamento</strong>
+          </button>
+          <button type="button" class="step-navigation__item" data-step="financial">
+            <span>4</span>
+            <strong>Estimativa</strong>
+          </button>
+          <button type="button" class="step-navigation__item" data-step="presentation">
+            <span>5</span>
+            <strong>Apresentação</strong>
+          </button>
+          <button type="button" class="step-navigation__item" data-step="decision">
+            <span>6</span>
+            <strong>Decisão</strong>
+          </button>
+        </nav>
+      </aside>
+
+      <div class="consultation-workspace">
+        <div class="consultation-toolbar no-print">
+          <div>
+            <span id="consultation-save-status" class="save-status">Dados salvos localmente</span>
+          </div>
+          <div class="consultation-toolbar__actions">
+            <button class="button button--ghost" type="button" data-action="save-consultation">
+              Salvar
+            </button>
+            <button class="button button--secondary" type="button" data-action="return-home">
+              Sair da consultoria
+            </button>
+          </div>
+        </div>
+
+        <div id="consultation-content" class="consultation-content"></div>
+      </div>
+    </section>
+  </template>
+
+  <template id="empty-state-template">
+    <section class="empty-state">
+      <div class="empty-state__icon" aria-hidden="true">AP</div>
+      <h2>Nenhum registro encontrado</h2>
+      <p>Crie uma nova consultoria para iniciar o levantamento.</p>
+      <button class="button button--primary" type="button" data-action="new-consultation">
+        Nova consultoria
+      </button>
+    </section>
+  </template>
+
+  <template id="confirmation-modal-template">
+    <div class="modal-backdrop" data-action="close-modal"></div>
+    <section
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirmation-modal-title"
+    >
+      <header class="modal__header">
+        <h2 id="confirmation-modal-title">Confirmar ação</h2>
+        <button class="icon-button icon-button--ghost" type="button" data-action="close-modal" aria-label="Fechar">
+          ×
+        </button>
+      </header>
+      <div class="modal__body">
+        <p id="confirmation-modal-message"></p>
+      </div>
+      <footer class="modal__footer">
+        <button class="button button--ghost" type="button" data-action="close-modal">
+          Cancelar
+        </button>
+        <button id="confirmation-modal-confirm" class="button button--primary" type="button">
+          Confirmar
+        </button>
+      </footer>
+    </section>
+  </template>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
